@@ -162,7 +162,7 @@ class _ChronicleState extends State<Chronicle> with WidgetsBindingObserver {
                       const SizedBox(height: 8),
                       ClipRRect(
                         borderRadius: BorderRadius.circular(18),
-                        child: SizedBox(height: 185, child: GameWidget(game: _scene)),
+                        child: SizedBox(height: 220, child: GameWidget(game: _scene)),
                       ),
                       const SizedBox(height: 12),
                       Text(

@@ -9,7 +9,7 @@ A Flutter + Flame idle RPG where the things you do in real life shape your adven
 3. At 20 XP in a skill, its class awakening appears in **Skill profile**. Select a discovered class to equip its combat bonus.
 4. Close the app and return after at least a minute. Cleared stages earn one XP per cleared stage per full idle minute for each party member, up to eight hours per absence. Offline rewards never clear new stages. Miri gains battle XP alongside you after joining.
 
-The Flame scene uses original drawn placeholders for the chibi party and landscapes. The three-stage campaign replays its final encounter after completion.
+The Flame scene uses SunnyLand pixel art for the animated party, enemies and parallax landscape. See [art credits](assets/CREDITS.md). The three-stage campaign replays its final encounter after completion.
 
 ## Run on macOS or iOS
 
