@@ -38,6 +38,7 @@ class Chronicle extends StatefulWidget {
 
 class _ChronicleState extends State<Chronicle> with WidgetsBindingObserver {
   Profile? _profile;
+  final _battleKey = GlobalKey();
   late final TrailScene _scene = TrailScene(() => _profile!);
   Timer? _timer;
   bool _foreground = true;
@@ -154,7 +155,7 @@ class _ChronicleState extends State<Chronicle> with WidgetsBindingObserver {
         : ChronicleView(
             profile: profile,
             now: DateTime.now(),
-            battle: GameWidget(game: _scene),
+            battle: GameWidget(key: _battleKey, game: _scene),
             trailNote: _trailNote,
             idleNote: _idleNote,
             saveError: _saveError,

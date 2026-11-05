@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 import 'progression.dart';
 
+part 'home_view.dart';
+
 const _ink = Color(0xff20334a);
 const _mist = Color(0xffe8f4fa);
 const _line = Color(0xffcbdfe9);
@@ -28,6 +30,7 @@ final daybreakTheme = ThemeData(
 );
 
 enum _Desk {
+  home('Home', Icons.home_rounded),
   journal('Journal', Icons.menu_book_rounded),
   party('Party', Icons.groups_rounded),
   skills('Skills', Icons.auto_awesome_rounded);
@@ -64,92 +67,123 @@ class ChronicleView extends StatefulWidget {
 }
 
 class _ChronicleViewState extends State<ChronicleView> {
-  _Desk _desk = _Desk.journal;
+  _Desk _desk = _Desk.home;
+
+  void _select(_Desk desk) => setState(() => _desk = desk);
 
   @override
   Widget build(BuildContext context) {
     final profile = widget.profile;
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        titleSpacing: 16,
-        title: const Row(
-          children: [
-            _Emblem(Icons.wb_twilight_rounded, _gold),
-            SizedBox(width: 10),
-            Expanded(
-              child: Text(
-                'Daybreak Chronicles',
-                style: TextStyle(fontWeight: FontWeight.w800),
-                overflow: TextOverflow.ellipsis,
+      appBar: _desk == _Desk.home
+          ? null
+          : AppBar(
+              backgroundColor: Colors.white,
+              titleSpacing: 16,
+              title: const Row(
+                children: [
+                  _Emblem(Icons.wb_twilight_rounded, _gold),
+                  SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                      'Daybreak Chronicles',
+                      style: TextStyle(fontWeight: FontWeight.w800),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
               ),
             ),
+      bottomNavigationBar: NavigationBarTheme(
+        data: NavigationBarThemeData(
+          iconTheme: WidgetStateProperty.resolveWith(
+            (states) => IconThemeData(
+              color: states.contains(WidgetState.selected)
+                  ? const Color(0xff123454)
+                  : const Color(0xffc7dcf6),
+            ),
+          ),
+          labelTextStyle: const WidgetStatePropertyAll(
+            TextStyle(color: Colors.white, fontWeight: FontWeight.w700),
+          ),
+        ),
+        child: NavigationBar(
+          height: 68,
+          backgroundColor: const Color(0xff152843),
+          indicatorColor: const Color(0xff8ce5ff),
+          selectedIndex: _desk.index,
+          onDestinationSelected: (index) => _select(_Desk.values[index]),
+          destinations: [
+            for (final desk in _Desk.values)
+              NavigationDestination(icon: Icon(desk.icon), label: desk.label),
           ],
         ),
       ),
-      bottomNavigationBar: NavigationBar(
-        backgroundColor: Colors.white,
-        indicatorColor: const Color(0xffcdebf9),
-        selectedIndex: _desk.index,
-        onDestinationSelected: (index) =>
-            setState(() => _desk = _Desk.values[index]),
-        destinations: [
-          for (final desk in _Desk.values)
-            NavigationDestination(icon: Icon(desk.icon), label: desk.label),
-        ],
-      ),
-      body: DecoratedBox(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [Color(0xffd9eef8), Color(0xfff7f6ef)],
-          ),
-        ),
-        child: SafeArea(
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              final wide = constraints.maxWidth >= 840;
-              return SingleChildScrollView(
-                padding: EdgeInsets.all(wide ? 24 : 14),
-                child: Center(
-                  child: ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 1180),
-                    child: Flex(
-                      direction: wide ? Axis.horizontal : Axis.vertical,
-                      mainAxisSize: wide ? MainAxisSize.max : MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      spacing: 16,
-                      children: [
-                        Flexible(
-                          flex: 3,
-                          fit: wide ? FlexFit.tight : FlexFit.loose,
-                          child: SizedBox(
-                            width: double.infinity,
-                            child: _encounter(profile, wide),
-                          ),
-                        ),
-                        Flexible(
-                          flex: 2,
-                          fit: wide ? FlexFit.tight : FlexFit.loose,
-                          child: SizedBox(
-                            width: double.infinity,
-                            child: switch (_desk) {
-                              _Desk.journal => _journal(profile),
-                              _Desk.party => _party(profile),
-                              _Desk.skills => _skills(profile),
-                            },
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
+      body: _desk == _Desk.home
+          ? _HomeView(
+              profile: profile,
+              battle: widget.battle,
+              trailNote: widget.trailNote,
+              idleNote: widget.idleNote,
+              saveError: widget.saveError,
+              onJournal: () => _select(_Desk.journal),
+              onParty: () => _select(_Desk.party),
+            )
+          : DecoratedBox(
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [Color(0xffd9eef8), Color(0xfff7f6ef)],
                 ),
-              );
-            },
-          ),
-        ),
-      ),
+              ),
+              child: SafeArea(
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
+                    final wide = constraints.maxWidth >= 840;
+                    return SingleChildScrollView(
+                      padding: EdgeInsets.all(wide ? 24 : 14),
+                      child: Center(
+                        child: ConstrainedBox(
+                          constraints: const BoxConstraints(maxWidth: 1180),
+                          child: Flex(
+                            direction: wide ? Axis.horizontal : Axis.vertical,
+                            mainAxisSize: wide
+                                ? MainAxisSize.max
+                                : MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            spacing: 16,
+                            children: [
+                              Flexible(
+                                flex: 3,
+                                fit: wide ? FlexFit.tight : FlexFit.loose,
+                                child: SizedBox(
+                                  width: double.infinity,
+                                  child: _encounter(profile, wide),
+                                ),
+                              ),
+                              Flexible(
+                                flex: 2,
+                                fit: wide ? FlexFit.tight : FlexFit.loose,
+                                child: SizedBox(
+                                  width: double.infinity,
+                                  child: switch (_desk) {
+                                    _Desk.home => const SizedBox.shrink(),
+                                    _Desk.journal => _journal(profile),
+                                    _Desk.party => _party(profile),
+                                    _Desk.skills => _skills(profile),
+                                  },
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ),
     );
   }
 

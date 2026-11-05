@@ -25,7 +25,7 @@ void main() {
             now: now,
             battle: const ColoredBox(key: Key('battle'), color: Colors.blue),
             trailNote: 'Follow the lanterns.',
-            idleNote: null,
+            idleNote: 'While away, you and Miri each earned 12 XP.',
             saveError: false,
             onQuest: (quest) => logged = quest,
             onAwaken: (path) => awakened = path,
@@ -33,6 +33,18 @@ void main() {
         ),
       );
       expect(find.text('Lantern Meadow'), findsOneWidget);
+      expect(find.text('MAIN PARTY'), findsOneWidget);
+      await tester.ensureVisible(find.text('Away Rewards'));
+      await tester.tap(find.text('Away Rewards'));
+      await tester.pumpAndSettle();
+      expect(
+        find.text('While away, you and Miri each earned 12 XP.'),
+        findsOneWidget,
+      );
+      await tester.tap(find.text('Close'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Life Quests'));
+      await tester.pumpAndSettle();
       expect(find.text('1 / 3 logged today'), findsOneWidget);
       expect(find.text('LOGGED'), findsOneWidget);
       final log = find.widgetWithText(FilledButton, 'Log').first;
@@ -51,6 +63,10 @@ void main() {
       await tester.ensureVisible(chip);
       await tester.tap(chip);
       expect(awakened, Awakening.sunwarden);
+      await tester.tap(find.text('Home'));
+      await tester.pumpAndSettle();
+      expect(find.text('MAIN PARTY'), findsOneWidget);
+      expect(find.byKey(const Key('battle')), findsOneWidget);
       expect(tester.takeException(), isNull);
     });
   }
