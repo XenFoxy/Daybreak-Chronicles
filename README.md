@@ -51,3 +51,15 @@ flutter test
 - `lib/trail_scene.dart` draws the animated trail in Flame. Simulation stays independent of frame rate.
 
 Android, Linux, Windows and web can use the same game rules and interface. Platform packaging and verification are future work.
+
+
+## Project documentation
+
+Daybreak Chronicles is being developed against an agreed production roadmap and Stage 1 design baseline. Start at the [documentation index](docs/README.md):
+
+- [Complete production roadmap](docs/production/roadmap.md) — milestones 0–18, phases, release gates and near-term priorities.
+- [Stage 1 foundation design](docs/design/stage-1-foundation.md) — current prototype audit, user flows, rules, interface architecture, Sprint 01 and acceptance criteria.
+- [Art bible v1](docs/art/art-bible-v1.md) — original Celestial Storybook Fantasy identity and asset standards.
+- [Initial asset manifest](docs/production/asset-manifest.md) — per-batch art, animation, environment, interface and audio deliverables.
+
+The existing Lantern Trail prototype remains the working baseline. The documents distinguish features already implemented from proposals awaiting validation or asset production.
