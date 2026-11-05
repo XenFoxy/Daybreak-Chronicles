@@ -162,7 +162,7 @@ class Profile {
     for (final skill in Skill.values) {
       final value = skills[skill.name] ?? 0;
       if (value is! int || value < 0) throw const FormatException('Invalid XP');
-      profile._skills[skill] = value;
+      if (value > 0) profile._skills[skill] = value;
     }
     final logged = json['logged'] as Map<String, dynamic>;
     for (final quest in LifeQuest.values) {
