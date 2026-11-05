@@ -4,6 +4,7 @@ import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'chronicle_view.dart';
 import 'progression.dart';
 import 'save_store.dart';
 import 'trail_scene.dart';
@@ -21,12 +22,7 @@ class DaybreakApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) => MaterialApp(
     title: 'Daybreak Chronicles',
-    theme: ThemeData(
-      colorScheme: ColorScheme.fromSeed(
-        seedColor: const Color(0xffe5a751),
-        brightness: Brightness.dark,
-      ),
-    ),
+    theme: daybreakTheme,
     home: Chronicle(store: store),
   );
 }
@@ -55,7 +51,8 @@ class _ChronicleState extends State<Chronicle> with WidgetsBindingObserver {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    _foreground = WidgetsBinding.instance.lifecycleState == null ||
+    _foreground =
+        WidgetsBinding.instance.lifecycleState == null ||
         WidgetsBinding.instance.lifecycleState == AppLifecycleState.resumed;
     unawaited(_open());
     _timer = Timer.periodic(const Duration(seconds: 1), (_) => _tick());
@@ -102,14 +99,18 @@ class _ChronicleState extends State<Chronicle> with WidgetsBindingObserver {
     final now = DateTime.now();
     if (_settleOnResume) {
       _settleOnResume = false;
-      unawaited(_commit((profile) => profile.settleIdle(now)).then((saved) {
-        if (!saved) _settleOnResume = true;
-      }));
+      unawaited(
+        _commit((profile) => profile.settleIdle(now)).then((saved) {
+          if (!saved) _settleOnResume = true;
+        }),
+      );
     } else {
-      unawaited(_commit((profile) {
-        profile.markActive(now);
-        return profile.battleSecond();
-      }));
+      unawaited(
+        _commit((profile) {
+          profile.markActive(now);
+          return profile.battleSecond();
+        }),
+      );
     }
   }
 
@@ -139,91 +140,27 @@ class _ChronicleState extends State<Chronicle> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     final profile = _profile;
-    final now = DateTime.now();
-    return Scaffold(
-      appBar: AppBar(title: const Text('Daybreak Chronicles')),
-      body: SafeArea(
-        child: profile == null
-            ? Center(
-                child: _saveError
-                    ? FilledButton(
-                        onPressed: _open,
-                        child: const Text('Could not open the save. Retry'),
-                      )
-                    : const CircularProgressIndicator(),
-              )
-            : Center(
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 660),
-                  child: ListView(
-                    padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
-                    children: [
-                      Text('THE LANTERN TRAIL', style: Theme.of(context).textTheme.labelLarge),
-                      const SizedBox(height: 8),
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(18),
-                        child: SizedBox(height: 220, child: GameWidget(game: _scene)),
-                      ),
-                      const SizedBox(height: 12),
-                      Text(
-                        'Stage ${profile.stage.index + 1} · ${profile.stage.title}',
-                        style: Theme.of(context).textTheme.headlineSmall,
-                      ),
-                      Text('${profile.stage.enemy} · ${profile.enemyHp}/${profile.stage.hp} HP'),
-                      LinearProgressIndicator(value: profile.enemyHp / profile.stage.hp),
-                      const SizedBox(height: 8),
-                      Text(profile.campaignComplete ? 'Trail complete · replaying Dawnspire' : _trailNote),
-                      if (_idleNote != null) Text(_idleNote!),
-                      if (_saveError) const Text('Could not save progress. Retrying…'),
-                      const Divider(height: 32),
-                      Text('Your party', style: Theme.of(context).textTheme.titleLarge),
-                      Text('Adventurer · Lv. ${profile.level} · ${profile.playerXp} XP · ${profile.attack} party attack'),
-                      Text(profile.hasCompanion
-                          ? 'Miri, lantern scout · Lv. ${profile.companionLevel} · ${profile.companionXp} XP'
-                          : 'Your first companion awaits beyond Lantern Meadow.'),
-                      const Divider(height: 32),
-                      Text('Life quests', style: Theme.of(context).textTheme.titleLarge),
-                      const Text('Log a completed activity once per local day.'),
-                      for (final quest in LifeQuest.values)
-                        ListTile(
-                          contentPadding: EdgeInsets.zero,
-                          title: Text(quest.label),
-                          subtitle: Text('+${LifeQuest.xp} ${quest.skill.name} XP'),
-                          trailing: OutlinedButton(
-                            onPressed: profile.loggedToday(quest, now)
-                                ? null
-                                : () => _commit((p) => p.logQuest(quest, DateTime.now())),
-                            child: Text(profile.loggedToday(quest, now) ? 'Logged' : 'Log'),
-                          ),
-                        ),
-                      const Divider(height: 32),
-                      Text('Skill profile', style: Theme.of(context).textTheme.titleLarge),
-                      for (final skill in Skill.values)
-                        Text('${skill.name} · ${profile.xp(skill)} XP'),
-                      const SizedBox(height: 12),
-                      Text(
-                        profile.awakening == null
-                            ? 'Awakenings · Discover a path at 20 XP in a skill.'
-                            : 'Awakening · ${profile.awakening!.title}',
-                      ),
-                      Wrap(
-                        spacing: 8,
-                        children: [
-                          for (final path in profile.discoverable)
-                            ChoiceChip(
-                              label: Text(path.title),
-                              selected: path == profile.awakening,
-                              onSelected: (selected) {
-                                if (selected) _commit((p) => p.awaken(path));
-                              },
-                            ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-      ),
-    );
+    return profile == null
+        ? Scaffold(
+            body: Center(
+              child: _saveError
+                  ? FilledButton(
+                      onPressed: _open,
+                      child: const Text('Could not open the save. Retry'),
+                    )
+                  : const CircularProgressIndicator(),
+            ),
+          )
+        : ChronicleView(
+            profile: profile,
+            now: DateTime.now(),
+            battle: GameWidget(game: _scene),
+            trailNote: _trailNote,
+            idleNote: _idleNote,
+            saveError: _saveError,
+            onQuest: (quest) =>
+                _commit((p) => p.logQuest(quest, DateTime.now())),
+            onAwaken: (path) => _commit((p) => p.awaken(path)),
+          );
   }
 }
