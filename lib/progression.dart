@@ -61,10 +61,10 @@ class Profile {
   int get companionLevel => 1 + companionXp ~/ 25;
   Stage get stage => Stage.values[min(cleared, Stage.values.length - 1)];
   bool get campaignComplete => cleared == Stage.values.length;
-  int get attack => 4 + min(level - 1, 4) +
+  int get attack => 4 + min<int>(level - 1, 4) +
       Skill.values.fold<int>(0, (sum, skill) => sum + xp(skill) ~/ 10) +
       (awakening == null ? 0 : 2) +
-      (hasCompanion ? min(companionLevel, 4) : 0);
+      (hasCompanion ? min<int>(companionLevel, 4) : 0);
 
   Iterable<Awakening> get discoverable =>
       Awakening.values.where((path) => xp(path.skill) >= Awakening.requiredXp);
